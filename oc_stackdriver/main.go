@@ -21,13 +21,12 @@ var (
 
 	// metrics
 	someKey, _ = tag.NewKey("my.org/keys/someKey")
-	//someMetric *stats.Int64Measure
 	someMetric = stats.Int64("my.org/measure/testCounter", "Some test counter", stats.UnitDimensionless)
 	someTimer  = stats.Int64("my.org/timer/fooTimer", "Some test timer", stats.UnitMilliseconds)
 )
 
 func fooFunc(ctx context.Context) {
-	fmt.Println("Func")
+	log.Print(">>> fooFunc")
 	ctx, err := tag.New(ctx,
 		tag.Insert(someKey, "someKeyValue"),
 	)
@@ -49,14 +48,13 @@ func fooFunc(ctx context.Context) {
 }
 
 func fooFuncHelper(ctx context.Context) {
-	fmt.Println("Func")
+	log.Print(">>> fooFuncHelper")
 	ctx, span := trace.StartSpan(ctx, "my.org/fooFuncHelper")
 	defer span.End()
 }
 
 func handleZpages() {
-	// http://127.0.0.1:8081/tracez
-	// http://127.0.0.1:8081/rpcz
+	log.Println("Serving zPages /tracez at :8081")
 	go func() { log.Fatal(http.ListenAndServe(":8081", zpages.Handler)) }()
 }
 
@@ -82,19 +80,15 @@ func main() {
 	view.RegisterExporter(e)
 	trace.RegisterExporter(e)
 
-	//PrometheusExporter()
-	//StackdriverExporter()
+	PrometheusExporter()
+	StackdriverExporter()
+	// .. jaeger, zipkin etc.
 
 	// always trace for this demo
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 	// report stats at every N second.
 	view.SetReportingPeriod(3 * time.Second)
-
-	//someKey, err = tag.NewKey("my.org/keys/testKey")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 
 	// actual worker
 	for i := 0; i < 10; i++ {
