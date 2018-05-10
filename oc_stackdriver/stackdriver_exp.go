@@ -1,10 +1,5 @@
 package main
 
-// Refs:
-// - https://cloud.google.com/stackdriver/
-// - https://cloud.google.com/go/docs/reference/
-// - https://godoc.org/cloud.google.com/go/trace
-
 import (
 	"log"
 
